@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme: Theme) =>
     root: {
       width: 75,
       height: 75,
-      margin: 15,
+      margin: 10,
       borderRadius: '50%',
     },
   })

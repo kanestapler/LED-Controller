@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme: Theme) =>
       justifyContent: 'center',
       width: 75,
       height: 75,
-      margin: 15,
+      margin: 10,
       background: 'white',
       cursor: 'pointer',
       borderRadius: '50%',
