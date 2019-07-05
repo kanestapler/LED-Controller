@@ -18,7 +18,7 @@ export const useDefaultColors = () => {
     })
     return unsubscribe
   }, [])
-  return defaultColors
+  return { defaultColors, setDefaultColors }
 }
 
 export const useLights = () => {
@@ -41,4 +41,24 @@ export const useLights = () => {
     return unsubscribe
   }, [])
   return { lights, setLights }
+}
+
+export const addNewDefaultColor = (color: Color) => {
+  database.collection('defaults').add({
+    red: color.red,
+    green: color.green,
+    blue: color.blue,
+  })
+}
+
+export const saveLight = (light: Light) => {
+  database
+    .collection('lights')
+    .doc(light.id)
+    .set({
+      colors: light.colors.map(color => {
+        return { red: color.red, green: color.green, blue: color.blue }
+      }),
+      name: light.name,
+    })
 }

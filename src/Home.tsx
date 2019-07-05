@@ -1,13 +1,25 @@
-import React, { useState } from 'react'
-import { ChromePicker } from 'react-color'
-import {
-  DragDropContext,
-  Draggable,
-  Droppable,
-  DropResult,
-} from 'react-beautiful-dnd'
+import React from 'react'
+import { DragDropContext, DropResult } from 'react-beautiful-dnd'
+import { Theme, createStyles, makeStyles } from '@material-ui/core/styles'
 
-import { useDefaultColors, useLights } from './database'
+import { useDefaultColors, useLights, addNewDefaultColor } from './database'
+import { updateLight } from './updater'
+import ColorBank from './ColorBank'
+import LightColors from './LightColors'
+import Trash from './Trash'
+
+const COLOR_BANK_ID = 'COLOR-BANK-DROPPABLE-ID'
+const TRASH_ID = 'TRASH-DROPPABLE-ID'
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    trash: {
+      bottom: '25px',
+      right: '25px',
+      position: 'absolute',
+    },
+  })
+)
 
 const reorder = (
   list: DefaultColor[],
@@ -21,11 +33,13 @@ const reorder = (
 }
 
 const Home: React.FC = () => {
-  const defaultColors = useDefaultColors()
-  const { lights, setLights } = useLights()
+  const classes = useStyles()
+  const { defaultColors } = useDefaultColors()
+  const { lights } = useLights()
 
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result
+    console.log('destination', destination)
 
     if (!destination) {
       const lightBoxSourceIndex = lights.findIndex(light => {
@@ -35,7 +49,7 @@ const Home: React.FC = () => {
         return
       }
       lights[lightBoxSourceIndex].colors.splice(source.index, 1)
-      setLights(lights)
+      updateLight(lights[lightBoxSourceIndex])
       return
     }
 
@@ -46,7 +60,7 @@ const Home: React.FC = () => {
       return
     }
 
-    if (source.droppableId === 'color-bank') {
+    if (source.droppableId === COLOR_BANK_ID) {
       const addedColor = Object.assign({}, defaultColors[source.index])
       addedColor.id = `${Math.random()}`
       lights[lightBoxDroppedIndex].colors.splice(
@@ -54,7 +68,7 @@ const Home: React.FC = () => {
         0,
         addedColor
       )
-      setLights(lights)
+      updateLight(lights[lightBoxDroppedIndex])
     } else if (source.droppableId === destination.droppableId) {
       const items = reorder(
         lights[lightBoxDroppedIndex].colors,
@@ -63,110 +77,28 @@ const Home: React.FC = () => {
       )
       const newLights = [...lights]
       newLights[lightBoxDroppedIndex].colors = items
-      setLights(newLights)
+      updateLight(lights[lightBoxDroppedIndex])
     }
   }
 
   return (
     <>
       <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable
-          droppableId="color-bank"
-          direction="horizontal"
-          isDropDisabled
-        >
-          {(provided, snapshot) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              style={{ display: 'flex' }}
-            >
-              {defaultColors.map((colorChoice, index) => {
-                return (
-                  <Draggable
-                    key={colorChoice.id}
-                    draggableId={colorChoice.id}
-                    index={index}
-                  >
-                    {(providedDraggable, snapshotDraggable) => (
-                      <div
-                        ref={providedDraggable.innerRef}
-                        {...providedDraggable.draggableProps}
-                        {...providedDraggable.dragHandleProps}
-                      >
-                        <div
-                          style={{
-                            width: 75,
-                            height: 75,
-                            background: `rgb(${colorChoice.red},${colorChoice.green},${colorChoice.blue})`,
-                            margin: 15,
-                          }}
-                        />
-                      </div>
-                    )}
-                  </Draggable>
-                )
-              })}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
+        <ColorBank
+          defaultColors={defaultColors}
+          droppableId={COLOR_BANK_ID}
+          addNewColor={newColor => {
+            addNewDefaultColor(newColor)
+          }}
+        />
         <br />
         <br />
         <br />
         {lights.map(light => {
-          return (
-            <Droppable
-              key={light.id}
-              droppableId={light.id}
-              direction="horizontal"
-            >
-              {(provided, snapshot) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  style={{ display: 'flex' }}
-                >
-                  {light.colors.map((color, index) => {
-                    return (
-                      <Draggable
-                        key={color.id}
-                        draggableId={color.id}
-                        index={index}
-                      >
-                        {(providedDraggable, snapshotDraggable) => (
-                          <div
-                            ref={providedDraggable.innerRef}
-                            {...providedDraggable.draggableProps}
-                            {...providedDraggable.dragHandleProps}
-                          >
-                            <div
-                              style={{
-                                width: 75,
-                                height: 75,
-                                background: `rgb(${color.red},${color.green},${color.blue})`,
-                                margin: 15,
-                              }}
-                            />
-                          </div>
-                        )}
-                      </Draggable>
-                    )
-                  })}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          )
+          return <LightColors key={light.id} light={light} />
         })}
+        <Trash droppableId={TRASH_ID} size={50} className={classes.trash} />
       </DragDropContext>
-      {/* <ChromePicker
-        disableAlpha
-        color={color}
-        onChange={color => {
-          setColor(color.rgb)
-        }}
-      /> */}
     </>
   )
 }
