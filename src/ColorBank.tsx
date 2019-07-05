@@ -18,7 +18,7 @@ const ColorBank: React.FC<ColorBankProps> = props => {
         <div
           ref={provided.innerRef}
           {...provided.droppableProps}
-          style={{ display: 'flex' }}
+          style={{ display: 'flex', flexWrap: 'wrap' }}
         >
           {defaultColors.map((colorChoice, index) => {
             return (
