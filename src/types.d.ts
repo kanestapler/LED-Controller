@@ -12,4 +12,5 @@ interface Light {
   colors: DefaultColor[]
   name: string
   id: string
+  numberOfLEDs: number
 }

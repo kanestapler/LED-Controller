@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import firebase from './firebase'
 
-const database = firebase.firestore()
+const firestore = firebase.firestore()
+const database = firebase.database()
 
 export const useDefaultColors = () => {
   const [defaultColors, setDefaultColors] = useState<Array<DefaultColor>>([])
   useEffect(() => {
-    const unsubscribe = database.collection('defaults').onSnapshot(doc => {
+    const unsubscribe = firestore.collection('defaults').onSnapshot(doc => {
       setDefaultColors(
         doc.docs.map(color => {
           return {
@@ -24,7 +25,7 @@ export const useDefaultColors = () => {
 export const useLights = () => {
   const [lights, setLights] = useState<Array<Light>>([])
   useEffect(() => {
-    const unsubscribe = database.collection('lights').onSnapshot(doc => {
+    const unsubscribe = firestore.collection('lights').onSnapshot(doc => {
       setLights(
         doc.docs.map(light => {
           const lightData = light.data() as Light
@@ -44,7 +45,7 @@ export const useLights = () => {
 }
 
 export const addNewDefaultColor = (color: Color) => {
-  database.collection('defaults').add({
+  firestore.collection('defaults').add({
     red: color.red,
     green: color.green,
     blue: color.blue,
@@ -52,7 +53,7 @@ export const addNewDefaultColor = (color: Color) => {
 }
 
 export const saveLight = (light: Light) => {
-  database
+  firestore
     .collection('lights')
     .doc(light.id)
     .set({
@@ -60,5 +61,21 @@ export const saveLight = (light: Light) => {
         return { red: color.red, green: color.green, blue: color.blue }
       }),
       name: light.name,
+      numberOfLEDs: light.numberOfLEDs,
     })
+}
+
+export const deleteDefaultColor = (color: DefaultColor) => {
+  firestore
+    .collection('defaults')
+    .doc(color.id)
+    .delete()
+}
+
+export const updateLightLED = (light: Light, LEDs: Color[]) => {
+  const lightLEDObject: any = {}
+  LEDs.forEach((led, index) => {
+    lightLEDObject[`pixel${index}`] = led
+  })
+  database.ref(`lights/${light.id}`).set(lightLEDObject)
 }

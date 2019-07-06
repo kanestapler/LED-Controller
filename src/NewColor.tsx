@@ -48,7 +48,7 @@ const NewColor: React.FC<NewColorProps> = ({ addNewColor }) => {
           setOpen(true)
         }}
       >
-        <Add className={classes.addIcon} />
+        <Add className={classes.addIcon} fontSize="large" />
       </Paper>
       <Modal
         open={open}

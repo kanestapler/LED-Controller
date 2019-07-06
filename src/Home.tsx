@@ -2,7 +2,12 @@ import React from 'react'
 import { DragDropContext, DropResult } from 'react-beautiful-dnd'
 import { Theme, createStyles, makeStyles } from '@material-ui/core/styles'
 
-import { useDefaultColors, useLights, addNewDefaultColor } from './database'
+import {
+  useDefaultColors,
+  useLights,
+  addNewDefaultColor,
+  deleteDefaultColor,
+} from './database'
 import { updateLight } from './updater'
 import ColorBank from './ColorBank'
 import LightColors from './LightColors'
@@ -39,28 +44,29 @@ const Home: React.FC = () => {
 
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result
-    console.log('destination', destination)
 
     if (!destination) {
-      const lightBoxSourceIndex = lights.findIndex(light => {
-        return light.id === source.droppableId
-      })
-      if (lightBoxSourceIndex < 0) {
-        return
-      }
-      lights[lightBoxSourceIndex].colors.splice(source.index, 1)
-      updateLight(lights[lightBoxSourceIndex])
       return
     }
 
     const lightBoxDroppedIndex = lights.findIndex(light => {
       return light.id === destination.droppableId
     })
-    if (lightBoxDroppedIndex < 0) {
-      return
-    }
 
-    if (source.droppableId === COLOR_BANK_ID) {
+    if (destination.droppableId === TRASH_ID) {
+      if (source.droppableId === COLOR_BANK_ID) {
+        deleteDefaultColor(defaultColors[source.index])
+      } else {
+        const lightBoxSourceIndex = lights.findIndex(light => {
+          return light.id === source.droppableId
+        })
+        if (lightBoxSourceIndex < 0) {
+          return
+        }
+        lights[lightBoxSourceIndex].colors.splice(source.index, 1)
+        updateLight(lights[lightBoxSourceIndex])
+      }
+    } else if (source.droppableId === COLOR_BANK_ID) {
       const addedColor = Object.assign({}, defaultColors[source.index])
       addedColor.id = `${Math.random()}`
       lights[lightBoxDroppedIndex].colors.splice(
@@ -90,12 +96,13 @@ const Home: React.FC = () => {
           addNewColor={newColor => {
             addNewDefaultColor(newColor)
           }}
+          trashId={TRASH_ID}
         />
         <br />
         <br />
         <br />
         {lights.map(light => {
-          return <LightColors key={light.id} light={light} />
+          return <LightColors key={light.id} light={light} trashId={TRASH_ID} />
         })}
         <Trash droppableId={TRASH_ID} size={50} className={classes.trash} />
       </DragDropContext>

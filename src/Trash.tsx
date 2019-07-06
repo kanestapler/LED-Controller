@@ -11,18 +11,18 @@ interface TrashProps {
 const Trash: React.FC<TrashProps> = props => {
   const { droppableId, size, className } = props
   return (
-    <Droppable droppableId={droppableId} isDropDisabled>
-      {provided => (
-        <div
-          ref={provided.innerRef}
-          {...provided.droppableProps}
-          className={className}
-        >
-          <Delete color="error" style={{ fontSize: size }} />
-          {provided.placeholder}
-        </div>
-      )}
-    </Droppable>
+    <div className={className}>
+      <Droppable droppableId={droppableId} direction="horizontal">
+        {(provided, snapshot) => {
+          return (
+            <div ref={provided.innerRef} {...provided.droppableProps}>
+              <Delete color="error" style={{ fontSize: size }} />
+              <div style={{ display: 'none' }}>{provided.placeholder}</div>
+            </div>
+          )
+        }}
+      </Droppable>
+    </div>
   )
 }
 
