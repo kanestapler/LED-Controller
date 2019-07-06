@@ -34,6 +34,18 @@ const LightColors: React.FC<LightColorsProps> = props => {
   return (
     <div className={classes.root}>
       <Typography variant="h4">{light.name}</Typography>
+      <Slider
+        value={scale}
+        onChange={(event, newValue) => {
+          setScale(newValue as number)
+        }}
+        onChangeCommitted={(event, newValue) => {
+          updateScale(newValue as number)
+        }}
+        valueLabelDisplay="auto"
+        min={0}
+        max={255}
+      />
       <Droppable droppableId={light.id} direction="horizontal">
         {(provided, snapshot) => {
           return (
@@ -72,18 +84,6 @@ const LightColors: React.FC<LightColorsProps> = props => {
           )
         }}
       </Droppable>
-      <Slider
-        value={scale}
-        onChange={(event, newValue) => {
-          setScale(newValue as number)
-        }}
-        onChangeCommitted={(event, newValue) => {
-          updateScale(newValue as number)
-        }}
-        valueLabelDisplay="auto"
-        min={0}
-        max={255}
-      />
     </div>
   )
 }
