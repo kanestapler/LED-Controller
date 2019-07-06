@@ -74,9 +74,11 @@ export const deleteDefaultColor = (color: DefaultColor) => {
 }
 
 export const updateLightLED = (light: Light, LEDs: Color[]) => {
-  const lightLEDObject: any = {}
+  let lightLEDObject: string = ''
   LEDs.forEach((led, index) => {
-    lightLEDObject[`pixel${index}`] = led
+    lightLEDObject += `${led.red.toFixed(2)},${led.green.toFixed(
+      2
+    )},${led.blue.toFixed(2)}/`
   })
   database.ref(`lights/${light.id}`).set(lightLEDObject)
 }
