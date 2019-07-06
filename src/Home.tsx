@@ -102,7 +102,17 @@ const Home: React.FC = () => {
         <br />
         <br />
         {lights.map(light => {
-          return <LightColors key={light.id} light={light} trashId={TRASH_ID} />
+          return (
+            <LightColors
+              key={light.id}
+              light={light}
+              trashId={TRASH_ID}
+              updateScale={newScale => {
+                light.scale = newScale
+                updateLight(light)
+              }}
+            />
+          )
         })}
         <Trash droppableId={TRASH_ID} size={50} className={classes.trash} />
       </DragDropContext>

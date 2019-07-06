@@ -13,4 +13,5 @@ interface Light {
   name: string
   id: string
   numberOfLEDs: number
+  scale: number
 }

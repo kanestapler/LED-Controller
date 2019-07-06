@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
 import { Paper, Typography } from '@material-ui/core'
+import { Slider } from '@material-ui/lab'
 import { Theme, createStyles, makeStyles } from '@material-ui/core/styles'
 
 import ColorBlock from './ColorBlock'
@@ -8,6 +9,7 @@ import ColorBlock from './ColorBlock'
 interface LightColorsProps {
   light: Light
   trashId: string
+  updateScale: (scale: number) => void
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -26,7 +28,8 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 const LightColors: React.FC<LightColorsProps> = props => {
-  const { light, trashId } = props
+  const { light, trashId, updateScale } = props
+  const [scale, setScale] = useState(light.scale)
   const classes = useStyles()
   return (
     <div className={classes.root}>
@@ -69,6 +72,18 @@ const LightColors: React.FC<LightColorsProps> = props => {
           )
         }}
       </Droppable>
+      <Slider
+        value={scale}
+        onChange={(event, newValue) => {
+          setScale(newValue as number)
+        }}
+        onChangeCommitted={(event, newValue) => {
+          updateScale(newValue as number)
+        }}
+        valueLabelDisplay="auto"
+        min={0}
+        max={255}
+      />
     </div>
   )
 }

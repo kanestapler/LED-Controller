@@ -62,6 +62,7 @@ export const saveLight = (light: Light) => {
       }),
       name: light.name,
       numberOfLEDs: light.numberOfLEDs,
+      scale: light.scale,
     })
 }
 
