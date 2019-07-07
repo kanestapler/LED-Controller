@@ -42,7 +42,6 @@ const useStyles = makeStyles((theme: Theme) =>
 const Header: React.FC<ChildComponentProps> = ({ history }) => {
   const classes = useStyles()
   const user = useContext(AuthContext)
-  console.log('user', user)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   return (
     <div className={classes.root}>

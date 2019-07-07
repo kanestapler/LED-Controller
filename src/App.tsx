@@ -31,8 +31,6 @@ const App: React.FC = () => {
       setUser(user)
     })
   }, [])
-  console.log('user1', user)
-  console.log('dbuser', dbUser)
   let combinedUser: User | null = null
   if (user) {
     combinedUser = { ...user } as User

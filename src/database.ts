@@ -105,6 +105,9 @@ export const getUser = (uid: string) => {
     .collection('users')
     .doc(uid)
     .get()
+    .then(x => {
+      return x.data()
+    })
 }
 
 export const createUser = (user: any) => {
