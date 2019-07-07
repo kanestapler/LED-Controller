@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Theme, createStyles, makeStyles } from '@material-ui/core/styles'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
+
+import { AuthContext } from './AuthContext'
 
 import ColorBlock from './ColorBlock'
 import NewColor from './NewColor'
@@ -25,6 +27,8 @@ const useStyles = makeStyles((theme: Theme) =>
 const ColorBank: React.FC<ColorBankProps> = props => {
   const classes = useStyles()
   const { defaultColors, droppableId, addNewColor, trashId } = props
+  const user = useContext(AuthContext)
+
   return (
     <Droppable droppableId={droppableId} direction="horizontal" isDropDisabled>
       {(provided, snapshot) => (
@@ -39,6 +43,7 @@ const ColorBank: React.FC<ColorBankProps> = props => {
                 key={colorChoice.id}
                 draggableId={colorChoice.id}
                 index={index}
+                isDragDisabled={user ? !user.changeColor : true}
               >
                 {(providedDraggable, snapshotDraggable) => {
                   return (
@@ -58,7 +63,11 @@ const ColorBank: React.FC<ColorBankProps> = props => {
               </Draggable>
             )
           })}
-          <NewColor addNewColor={addNewColor} />
+          {user ? (
+            user.createColor ? (
+              <NewColor addNewColor={addNewColor} />
+            ) : null
+          ) : null}
           {provided.placeholder}
         </div>
       )}

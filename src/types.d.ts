@@ -15,3 +15,9 @@ interface Light {
   numberOfLEDs: number
   scale: number
 }
+
+interface User extends firebase.User {
+  brightness: boolean
+  changeColor: boolean
+  createColor: boolean
+}

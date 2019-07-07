@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext, useState } from 'react'
 import { withRouter } from 'react-router-dom'
 import { History } from 'history'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
@@ -8,8 +8,14 @@ import {
   Typography,
   Button,
   IconButton,
+  Menu,
+  MenuItem,
+  Avatar,
 } from '@material-ui/core'
 import HomeIcon from '@material-ui/icons/Home'
+
+import { AuthContext } from './AuthContext'
+import { logout } from './firebase'
 
 interface ChildComponentProps {
   history: History
@@ -26,11 +32,18 @@ const useStyles = makeStyles((theme: Theme) =>
     title: {
       flexGrow: 1,
     },
+    avatar: {
+      margin: 10,
+      cursor: 'pointer',
+    },
   })
 )
 
 const Header: React.FC<ChildComponentProps> = ({ history }) => {
   const classes = useStyles()
+  const user = useContext(AuthContext)
+  console.log('user', user)
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   return (
     <div className={classes.root}>
       <AppBar position="static">
@@ -49,14 +62,44 @@ const Header: React.FC<ChildComponentProps> = ({ history }) => {
           <Typography variant="h6" className={classes.title}>
             Jellyfish Jam
           </Typography>
-          <Button
-            color="inherit"
-            onClick={() => {
-              history.push('/login')
-            }}
-          >
-            Login
-          </Button>
+          {user ? (
+            <>
+              <Avatar
+                alt={user.displayName ? user.displayName : undefined}
+                src={user.photoURL ? user.photoURL : undefined}
+                className={classes.avatar}
+                onClick={event => {
+                  setAnchorEl(event.currentTarget)
+                }}
+              />
+              <Menu
+                anchorEl={anchorEl}
+                keepMounted
+                open={Boolean(anchorEl)}
+                onClose={() => {
+                  setAnchorEl(null)
+                }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    logout()
+                    setAnchorEl(null)
+                  }}
+                >
+                  Logout
+                </MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <Button
+              color="inherit"
+              onClick={() => {
+                history.push('/login')
+              }}
+            >
+              Login
+            </Button>
+          )}
         </Toolbar>
       </AppBar>
     </div>

@@ -82,3 +82,39 @@ export const updateLightLED = (light: Light, LEDs: Color[]) => {
   })
   database.ref(`lights/${light.id}`).set(lightLEDObject)
 }
+
+export const useUser = (uid: string | null) => {
+  const [user, setUser] = useState<User | null>(null)
+  useEffect(() => {
+    if (uid) {
+      return firestore
+        .collection('users')
+        .doc(uid)
+        .onSnapshot(x => {
+          setUser(x.data() as User)
+        })
+    } else {
+      setUser(null)
+    }
+  }, [uid])
+  return user
+}
+
+export const getUser = (uid: string) => {
+  return firestore
+    .collection('users')
+    .doc(uid)
+    .get()
+}
+
+export const createUser = (user: any) => {
+  return firestore
+    .collection('users')
+    .doc(user.uid)
+    .set({
+      name: user.displayName,
+      brightness: false,
+      changeColor: false,
+      createColor: false,
+    })
+}

@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
 import { Paper, Typography } from '@material-ui/core'
 import { Slider } from '@material-ui/lab'
 import { Theme, createStyles, makeStyles } from '@material-ui/core/styles'
+
+import { AuthContext } from './AuthContext'
 
 import ColorBlock from './ColorBlock'
 
@@ -31,6 +33,7 @@ const LightColors: React.FC<LightColorsProps> = props => {
   const { light, trashId, updateScale } = props
   const [scale, setScale] = useState(light.scale)
   const classes = useStyles()
+  const user = useContext(AuthContext)
   return (
     <div className={classes.root}>
       <Typography variant="h4">{light.name}</Typography>
@@ -45,8 +48,13 @@ const LightColors: React.FC<LightColorsProps> = props => {
         valueLabelDisplay="auto"
         min={0}
         max={255}
+        disabled={user ? !user.brightness : true}
       />
-      <Droppable droppableId={light.id} direction="horizontal">
+      <Droppable
+        droppableId={light.id}
+        direction="horizontal"
+        isDropDisabled={user ? !user.changeColor : true}
+      >
         {(provided, snapshot) => {
           return (
             <div ref={provided.innerRef} {...provided.droppableProps}>
@@ -57,6 +65,7 @@ const LightColors: React.FC<LightColorsProps> = props => {
                       key={color.id}
                       draggableId={color.id}
                       index={index}
+                      isDragDisabled={user ? !user.changeColor : true}
                     >
                       {(providedDraggable, snapshotDraggable) => {
                         return (

@@ -8,4 +8,8 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig)
 }
 
+export const logout = () => {
+  firebase.auth().signOut()
+}
+
 export default firebase
