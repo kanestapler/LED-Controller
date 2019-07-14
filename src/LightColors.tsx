@@ -19,12 +19,14 @@ const useStyles = makeStyles((theme: Theme) =>
     bucket: {
       display: 'inline-flex',
       width: '100%',
+      height: '90px',
       overflowX: 'scroll',
     },
     root: {
       width: '90%',
       marginLeft: 'auto',
       marginRight: 'auto',
+      marginBottom: '2em',
     },
   })
 )
@@ -59,34 +61,36 @@ const LightColors: React.FC<LightColorsProps> = props => {
           return (
             <div ref={provided.innerRef} {...provided.droppableProps}>
               <Paper className={classes.bucket}>
-                {light.colors.map((color, index) => {
-                  return (
-                    <Draggable
-                      key={color.id}
-                      draggableId={color.id}
-                      index={index}
-                      isDragDisabled={user ? !user.changeColor : true}
-                    >
-                      {(providedDraggable, snapshotDraggable) => {
-                        return (
-                          <div
-                            ref={providedDraggable.innerRef}
-                            {...providedDraggable.draggableProps}
-                            {...providedDraggable.dragHandleProps}
-                          >
-                            <ColorBlock
-                              color={color}
-                              isDragging={snapshotDraggable.isDragging}
-                              dropToTrash={
-                                snapshotDraggable.draggingOver === trashId
-                              }
-                            />
-                          </div>
-                        )
-                      }}
-                    </Draggable>
-                  )
-                })}
+                {light.colors.length === 0
+                  ? null
+                  : light.colors.map((color, index) => {
+                      return (
+                        <Draggable
+                          key={color.id}
+                          draggableId={color.id}
+                          index={index}
+                          isDragDisabled={user ? !user.changeColor : true}
+                        >
+                          {(providedDraggable, snapshotDraggable) => {
+                            return (
+                              <div
+                                ref={providedDraggable.innerRef}
+                                {...providedDraggable.draggableProps}
+                                {...providedDraggable.dragHandleProps}
+                              >
+                                <ColorBlock
+                                  color={color}
+                                  isDragging={snapshotDraggable.isDragging}
+                                  dropToTrash={
+                                    snapshotDraggable.draggingOver === trashId
+                                  }
+                                />
+                              </div>
+                            )
+                          }}
+                        </Draggable>
+                      )
+                    })}
               </Paper>
               {provided.placeholder}
             </div>

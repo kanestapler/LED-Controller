@@ -14,12 +14,30 @@ const getLEDArray = (
   multiplier: number
 ) => {
   const ledArray: Color[] = []
-  for (let i = 0; i < numberOfLEDs; i++) {
-    const interval = numberOfLEDs / (colors.length - 1)
-    const arrayIndex = Math.floor(i / interval)
-    ledArray.push(
-      getColorAtIndex(colors, i % interval, arrayIndex, interval, multiplier)
-    )
+  if (colors.length === 0) {
+    for (let i = 0; i < numberOfLEDs; i++) {
+      ledArray.push({
+        red: 0,
+        green: 0,
+        blue: 0,
+      })
+    }
+  } else if (colors.length === 1) {
+    for (let i = 0; i < numberOfLEDs; i++) {
+      ledArray.push({
+        red: colors[0].red,
+        green: colors[0].green,
+        blue: colors[0].blue,
+      })
+    }
+  } else {
+    for (let i = 0; i < numberOfLEDs; i++) {
+      const interval = numberOfLEDs / (colors.length - 1)
+      const arrayIndex = Math.floor(i / interval)
+      ledArray.push(
+        getColorAtIndex(colors, i % interval, arrayIndex, interval, multiplier)
+      )
+    }
   }
   return ledArray
 }

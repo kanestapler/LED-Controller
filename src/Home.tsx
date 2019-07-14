@@ -19,9 +19,9 @@ const TRASH_ID = 'TRASH-DROPPABLE-ID'
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     trash: {
-      bottom: '25px',
-      right: '25px',
-      position: 'absolute',
+      bottom: '0',
+      right: '0',
+      position: 'fixed',
     },
   })
 )
