@@ -12,9 +12,9 @@ interface ColorBankProps {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      width: 75,
-      height: 75,
-      margin: 10,
+      width: 60,
+      height: 60,
+      margin: 8,
       borderRadius: '50%',
       display: 'flex',
       justifyContent: 'center',
