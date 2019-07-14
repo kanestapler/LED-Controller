@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme: Theme) =>
     bucket: {
       display: 'inline-flex',
       width: '100%',
-      height: '90px',
+      minHeight: '90px',
       overflowX: 'scroll',
     },
     root: {
