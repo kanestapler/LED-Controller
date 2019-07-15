@@ -1,8 +1,15 @@
 import React, { useState, useContext } from 'react'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
-import { Paper, Typography } from '@material-ui/core'
+import {
+  Paper,
+  Typography,
+  ExpansionPanel,
+  ExpansionPanelSummary,
+  ExpansionPanelDetails,
+} from '@material-ui/core'
 import { Slider } from '@material-ui/lab'
 import { Theme, createStyles, makeStyles } from '@material-ui/core/styles'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 import { AuthContext } from './AuthContext'
 
@@ -22,11 +29,15 @@ const useStyles = makeStyles((theme: Theme) =>
       minHeight: '76px',
       overflowX: 'scroll',
     },
-    root: {
-      width: '90%',
-      marginLeft: 'auto',
-      marginRight: 'auto',
-      marginBottom: '2em',
+    heading: {
+      fontSize: theme.typography.pxToRem(15),
+      fontWeight: theme.typography.fontWeightRegular,
+    },
+    details: {
+      flexDirection: 'column',
+    },
+    color: {
+      margin: 8,
     },
   })
 )
@@ -37,67 +48,74 @@ const LightColors: React.FC<LightColorsProps> = props => {
   const classes = useStyles()
   const user = useContext(AuthContext)
   return (
-    <div className={classes.root}>
-      <Typography variant="h4">{light.name}</Typography>
-      <Slider
-        value={scale}
-        onChange={(event, newValue) => {
-          setScale(newValue as number)
-        }}
-        onChangeCommitted={(event, newValue) => {
-          updateScale(newValue as number)
-        }}
-        valueLabelDisplay="auto"
-        min={0}
-        max={255}
-        disabled={user ? !user.brightness : true}
-      />
-      <Droppable
-        droppableId={light.id}
-        direction="horizontal"
-        isDropDisabled={user ? !user.changeColor : true}
-      >
-        {(provided, snapshot) => {
-          return (
-            <div ref={provided.innerRef} {...provided.droppableProps}>
-              <Paper className={classes.bucket}>
-                {light.colors.length === 0
-                  ? null
-                  : light.colors.map((color, index) => {
-                      return (
-                        <Draggable
-                          key={color.id}
-                          draggableId={color.id}
-                          index={index}
-                          isDragDisabled={user ? !user.changeColor : true}
-                        >
-                          {(providedDraggable, snapshotDraggable) => {
-                            return (
-                              <div
-                                ref={providedDraggable.innerRef}
-                                {...providedDraggable.draggableProps}
-                                {...providedDraggable.dragHandleProps}
-                              >
-                                <ColorBlock
-                                  color={color}
-                                  isDragging={snapshotDraggable.isDragging}
-                                  dropToTrash={
-                                    snapshotDraggable.draggingOver === trashId
-                                  }
-                                />
-                              </div>
-                            )
-                          }}
-                        </Draggable>
-                      )
-                    })}
-              </Paper>
-              {provided.placeholder}
-            </div>
-          )
-        }}
-      </Droppable>
-    </div>
+    <ExpansionPanel>
+      <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography className={classes.heading}>{light.name}</Typography>
+      </ExpansionPanelSummary>
+      <ExpansionPanelDetails className={classes.details}>
+        <Slider
+          value={scale}
+          onChange={(event, newValue) => {
+            setScale(newValue as number)
+          }}
+          onChangeCommitted={(event, newValue) => {
+            updateScale(newValue as number)
+          }}
+          valueLabelDisplay="auto"
+          min={0}
+          max={255}
+          disabled={user ? !user.brightness : true}
+        />
+        <Droppable
+          droppableId={light.id}
+          direction="horizontal"
+          isDropDisabled={user ? !user.changeColor : true}
+        >
+          {(provided, snapshot) => {
+            return (
+              <div ref={provided.innerRef} {...provided.droppableProps}>
+                <div className={classes.bucket}>
+                  {light.colors.length === 0
+                    ? null
+                    : light.colors.map((color, index) => {
+                        return (
+                          <div className={classes.color}>
+                            <Draggable
+                              key={color.id}
+                              draggableId={color.id}
+                              index={index}
+                              isDragDisabled={user ? !user.changeColor : true}
+                            >
+                              {(providedDraggable, snapshotDraggable) => {
+                                return (
+                                  <div
+                                    ref={providedDraggable.innerRef}
+                                    {...providedDraggable.draggableProps}
+                                    {...providedDraggable.dragHandleProps}
+                                  >
+                                    <ColorBlock
+                                      color={color}
+                                      isDragging={snapshotDraggable.isDragging}
+                                      dropToTrash={
+                                        snapshotDraggable.draggingOver ===
+                                        trashId
+                                      }
+                                    />
+                                  </div>
+                                )
+                              }}
+                            </Draggable>
+                          </div>
+                        )
+                      })}
+                </div>
+                {provided.placeholder}
+              </div>
+            )
+          }}
+        </Droppable>
+      </ExpansionPanelDetails>
+    </ExpansionPanel>
   )
 }
 

@@ -23,6 +23,11 @@ const useStyles = makeStyles((theme: Theme) =>
       right: '0',
       position: 'fixed',
     },
+    lightsRoot: {
+      width: '90%',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+    },
   })
 )
 
@@ -101,19 +106,21 @@ const Home: React.FC = () => {
         <br />
         <br />
         <br />
-        {lights.map(light => {
-          return (
-            <LightColors
-              key={light.id}
-              light={light}
-              trashId={TRASH_ID}
-              updateScale={newScale => {
-                light.scale = newScale
-                updateLight(light)
-              }}
-            />
-          )
-        })}
+        <div className={classes.lightsRoot}>
+          {lights.map(light => {
+            return (
+              <LightColors
+                key={light.id}
+                light={light}
+                trashId={TRASH_ID}
+                updateScale={newScale => {
+                  light.scale = newScale
+                  updateLight(light)
+                }}
+              />
+            )
+          })}
+        </div>
         <Trash droppableId={TRASH_ID} size={50} className={classes.trash} />
       </DragDropContext>
     </>

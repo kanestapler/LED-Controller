@@ -21,6 +21,9 @@ const useStyles = makeStyles((theme: Theme) =>
       justifyContent: 'center',
       flexWrap: 'wrap',
     },
+    color: {
+      margin: 8,
+    },
   })
 )
 
@@ -39,28 +42,32 @@ const ColorBank: React.FC<ColorBankProps> = props => {
         >
           {defaultColors.map((colorChoice, index) => {
             return (
-              <Draggable
-                key={colorChoice.id}
-                draggableId={colorChoice.id}
-                index={index}
-                isDragDisabled={user ? !user.changeColor : true}
-              >
-                {(providedDraggable, snapshotDraggable) => {
-                  return (
-                    <div
-                      ref={providedDraggable.innerRef}
-                      {...providedDraggable.draggableProps}
-                      {...providedDraggable.dragHandleProps}
-                    >
-                      <ColorBlock
-                        color={colorChoice}
-                        isDragging={snapshotDraggable.isDragging}
-                        dropToTrash={snapshotDraggable.draggingOver === trashId}
-                      />
-                    </div>
-                  )
-                }}
-              </Draggable>
+              <div className={classes.color}>
+                <Draggable
+                  key={colorChoice.id}
+                  draggableId={colorChoice.id}
+                  index={index}
+                  isDragDisabled={user ? !user.changeColor : true}
+                >
+                  {(providedDraggable, snapshotDraggable) => {
+                    return (
+                      <div
+                        ref={providedDraggable.innerRef}
+                        {...providedDraggable.draggableProps}
+                        {...providedDraggable.dragHandleProps}
+                      >
+                        <ColorBlock
+                          color={colorChoice}
+                          isDragging={snapshotDraggable.isDragging}
+                          dropToTrash={
+                            snapshotDraggable.draggingOver === trashId
+                          }
+                        />
+                      </div>
+                    )
+                  }}
+                </Draggable>
+              </div>
             )
           })}
           {user ? (
