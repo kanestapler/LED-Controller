@@ -2,7 +2,6 @@ import React, { useState, useContext } from 'react'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
 import {
-  Paper,
   Typography,
   ExpansionPanel,
   ExpansionPanelSummary,
@@ -10,10 +9,18 @@ import {
   Grid,
   Input,
   IconButton,
+  Slider,
 } from '@material-ui/core'
-import { Slider } from '@material-ui/lab'
 import { Theme, createStyles, makeStyles } from '@material-ui/core/styles'
-import { ExpandMore, BrightnessLow, Edit } from '@material-ui/icons'
+import {
+  ExpandMore,
+  BrightnessLow,
+  Edit,
+  BlurOn,
+  Cake,
+  PowerSettingsNew,
+} from '@material-ui/icons'
+import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab'
 
 import { AuthContext } from './AuthContext'
 
@@ -50,7 +57,13 @@ const useStyles = makeStyles((theme: Theme) =>
     input: {
       width: 42,
     },
-    settingsButton: {},
+    settingsButton: {
+      padding: 0,
+      marginLeft: theme.spacing(1),
+    },
+    toggleBox: {
+      marginBottom: theme.spacing(1),
+    },
   })
 )
 
@@ -60,6 +73,7 @@ const LightColors: React.FC<LightColorsProps & RouterProps> = props => {
   const { light, trashId, updateScale, history } = props
   const [brightness, setBrightness] = useState(light.scale)
   const [expanded, setExpanded] = useState(false)
+  const [mode, setMode] = useState<string | null>(null)
   const classes = useStyles()
   const user = useContext(AuthContext)
   return (
@@ -71,66 +85,91 @@ const LightColors: React.FC<LightColorsProps & RouterProps> = props => {
     >
       <ExpansionPanelSummary expandIcon={<ExpandMore />}>
         <Typography className={classes.heading}>{light.name}</Typography>
+        <IconButton
+          className={classes.settingsButton}
+          onClick={() => {
+            history.push(`/edit/${light.id}`)
+          }}
+          style={!expanded ? { display: 'none' } : undefined}
+        >
+          <Edit fontSize="small" />
+        </IconButton>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.details}>
-        <div>
-          <IconButton
-            className={classes.settingsButton}
-            onClick={() => {
-              history.push(`/edit/${light.id}`)
-            }}
-            edge="start"
-          >
-            <Edit fontSize="small" />
-          </IconButton>
-          <Typography id="input-slider" gutterBottom>
-            Brightness
-          </Typography>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item>
-              <BrightnessLow />
-            </Grid>
-            <Grid item xs>
-              <Slider
-                value={brightness}
-                onChange={(event, newValue) => {
-                  setBrightness(newValue as number)
-                }}
-                onChangeCommitted={(event, newValue) => {
-                  updateScale(newValue as number)
-                }}
-                valueLabelDisplay="auto"
-                min={0}
-                max={MAX_BRIGHTNESS}
-                disabled={user ? !user.brightness : true}
-              />
-            </Grid>
-            <Grid item>
-              <Input
-                className={classes.input}
-                value={brightness}
-                margin="dense"
-                onChange={e => {
-                  let value = Number(e.currentTarget.value)
-                  if (value < 0) {
-                    value = 0
-                  } else if (value > MAX_BRIGHTNESS) {
-                    value = MAX_BRIGHTNESS
-                  }
-                  setBrightness(value)
-                  updateScale(value)
-                }}
-                disableUnderline
-                inputProps={{
-                  step: 5,
-                  min: 0,
-                  max: MAX_BRIGHTNESS,
-                  type: 'number',
-                }}
-              />
-            </Grid>
+        <ToggleButtonGroup
+          value={mode}
+          exclusive
+          onChange={(e, x: string) => {
+            if (x === 'power') {
+              if (mode) {
+                setMode(null)
+              } else {
+                setMode('normal')
+              }
+            } else {
+              setMode(x)
+            }
+          }}
+          className={classes.toggleBox}
+        >
+          <ToggleButton selected={!!mode} value="power">
+            <PowerSettingsNew />
+          </ToggleButton>
+          <ToggleButton value="normal">
+            <BlurOn />
+          </ToggleButton>
+          <ToggleButton value="center">
+            <Cake />
+          </ToggleButton>
+        </ToggleButtonGroup>
+        <Typography id="input-slider" gutterBottom>
+          Brightness
+        </Typography>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item>
+            <BrightnessLow />
           </Grid>
-        </div>
+          <Grid item xs>
+            <Slider
+              value={brightness}
+              onChange={(event, newValue) => {
+                setBrightness(newValue as number)
+              }}
+              onChangeCommitted={(event, newValue) => {
+                updateScale(newValue as number)
+              }}
+              valueLabelDisplay="auto"
+              min={0}
+              max={MAX_BRIGHTNESS}
+              disabled={user ? !user.brightness : true}
+            />
+          </Grid>
+          <Grid item>
+            <Input
+              className={classes.input}
+              value={brightness}
+              margin="dense"
+              onChange={e => {
+                let value = Number(e.currentTarget.value)
+                if (value < 0) {
+                  value = 0
+                } else if (value > MAX_BRIGHTNESS) {
+                  value = MAX_BRIGHTNESS
+                }
+                setBrightness(value)
+                updateScale(value)
+              }}
+              disableUnderline
+              inputProps={{
+                step: 5,
+                min: 0,
+                max: MAX_BRIGHTNESS,
+                type: 'number',
+              }}
+              disabled={user ? !user.brightness : true}
+            />
+          </Grid>
+        </Grid>
         <Droppable
           droppableId={light.id}
           direction="horizontal"
