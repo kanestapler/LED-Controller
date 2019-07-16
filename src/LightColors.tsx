@@ -6,10 +6,12 @@ import {
   ExpansionPanel,
   ExpansionPanelSummary,
   ExpansionPanelDetails,
+  Grid,
+  Input,
 } from '@material-ui/core'
 import { Slider } from '@material-ui/lab'
 import { Theme, createStyles, makeStyles } from '@material-ui/core/styles'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { ExpandMore, BrightnessLow } from '@material-ui/icons'
 
 import { AuthContext } from './AuthContext'
 
@@ -39,33 +41,74 @@ const useStyles = makeStyles((theme: Theme) =>
     color: {
       margin: 8,
     },
+    input: {
+      width: 42,
+    },
   })
 )
 
+const MAX_BRIGHTNESS = 125
+
 const LightColors: React.FC<LightColorsProps> = props => {
   const { light, trashId, updateScale } = props
-  const [scale, setScale] = useState(light.scale)
+  const [brightness, setBrightness] = useState(light.scale)
   const classes = useStyles()
   const user = useContext(AuthContext)
   return (
     <ExpansionPanel>
-      <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+      <ExpansionPanelSummary expandIcon={<ExpandMore />}>
         <Typography className={classes.heading}>{light.name}</Typography>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.details}>
-        <Slider
-          value={scale}
-          onChange={(event, newValue) => {
-            setScale(newValue as number)
-          }}
-          onChangeCommitted={(event, newValue) => {
-            updateScale(newValue as number)
-          }}
-          valueLabelDisplay="auto"
-          min={0}
-          max={255}
-          disabled={user ? !user.brightness : true}
-        />
+        <div>
+          <Typography id="input-slider" gutterBottom>
+            Brightness
+          </Typography>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item>
+              <BrightnessLow />
+            </Grid>
+            <Grid item xs>
+              <Slider
+                value={brightness}
+                onChange={(event, newValue) => {
+                  setBrightness(newValue as number)
+                }}
+                onChangeCommitted={(event, newValue) => {
+                  updateScale(newValue as number)
+                }}
+                valueLabelDisplay="auto"
+                min={0}
+                max={MAX_BRIGHTNESS}
+                disabled={user ? !user.brightness : true}
+              />
+            </Grid>
+            <Grid item>
+              <Input
+                className={classes.input}
+                value={brightness}
+                margin="dense"
+                onChange={e => {
+                  let value = Number(e.currentTarget.value)
+                  if (value < 0) {
+                    value = 0
+                  } else if (value > MAX_BRIGHTNESS) {
+                    value = MAX_BRIGHTNESS
+                  }
+                  setBrightness(value)
+                  updateScale(value)
+                }}
+                disableUnderline
+                inputProps={{
+                  step: 5,
+                  min: 0,
+                  max: MAX_BRIGHTNESS,
+                  type: 'number',
+                }}
+              />
+            </Grid>
+          </Grid>
+        </div>
         <Droppable
           droppableId={light.id}
           direction="horizontal"
@@ -79,9 +122,8 @@ const LightColors: React.FC<LightColorsProps> = props => {
                     ? null
                     : light.colors.map((color, index) => {
                         return (
-                          <div className={classes.color}>
+                          <div key={color.id} className={classes.color}>
                             <Draggable
-                              key={color.id}
                               draggableId={color.id}
                               index={index}
                               isDragDisabled={user ? !user.changeColor : true}

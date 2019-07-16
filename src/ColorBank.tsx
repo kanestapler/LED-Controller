@@ -42,9 +42,8 @@ const ColorBank: React.FC<ColorBankProps> = props => {
         >
           {defaultColors.map((colorChoice, index) => {
             return (
-              <div className={classes.color}>
+              <div key={colorChoice.id} className={classes.color}>
                 <Draggable
-                  key={colorChoice.id}
                   draggableId={colorChoice.id}
                   index={index}
                   isDragDisabled={user ? !user.changeColor : true}
