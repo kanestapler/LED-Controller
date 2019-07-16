@@ -44,6 +44,21 @@ export const useLights = () => {
   return { lights, setLights }
 }
 
+export const useLight = (lightId: string) => {
+  const [light, setLight] = useState<Light | null>(null)
+  useEffect(() => {
+    const unsubscribe = firestore
+      .collection('lights')
+      .doc(lightId)
+      .onSnapshot(doc => {
+        const lightData = doc.data() as Light
+        setLight({ ...lightData, id: lightId })
+      })
+    return unsubscribe
+  }, [lightId])
+  return { light, setLight }
+}
+
 export const addNewDefaultColor = (color: Color) => {
   firestore.collection('defaults').add({
     red: color.red,

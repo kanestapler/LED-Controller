@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react'
+import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Draggable, Droppable } from 'react-beautiful-dnd'
 import {
   Paper,
@@ -8,16 +9,21 @@ import {
   ExpansionPanelDetails,
   Grid,
   Input,
+  IconButton,
 } from '@material-ui/core'
 import { Slider } from '@material-ui/lab'
 import { Theme, createStyles, makeStyles } from '@material-ui/core/styles'
-import { ExpandMore, BrightnessLow } from '@material-ui/icons'
+import { ExpandMore, BrightnessLow, Edit } from '@material-ui/icons'
 
 import { AuthContext } from './AuthContext'
 
 import ColorBlock from './ColorBlock'
 
-interface LightColorsProps {
+interface RouterProps {
+  history: string | undefined
+}
+
+interface LightColorsProps extends RouteComponentProps<RouterProps> {
   light: Light
   trashId: string
   updateScale: (scale: number) => void
@@ -44,23 +50,39 @@ const useStyles = makeStyles((theme: Theme) =>
     input: {
       width: 42,
     },
+    settingsButton: {},
   })
 )
 
 const MAX_BRIGHTNESS = 125
 
-const LightColors: React.FC<LightColorsProps> = props => {
-  const { light, trashId, updateScale } = props
+const LightColors: React.FC<LightColorsProps & RouterProps> = props => {
+  const { light, trashId, updateScale, history } = props
   const [brightness, setBrightness] = useState(light.scale)
+  const [expanded, setExpanded] = useState(false)
   const classes = useStyles()
   const user = useContext(AuthContext)
   return (
-    <ExpansionPanel>
+    <ExpansionPanel
+      expanded={expanded}
+      onChange={(e, x) => {
+        setExpanded(x)
+      }}
+    >
       <ExpansionPanelSummary expandIcon={<ExpandMore />}>
         <Typography className={classes.heading}>{light.name}</Typography>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.details}>
         <div>
+          <IconButton
+            className={classes.settingsButton}
+            onClick={() => {
+              history.push(`/edit/${light.id}`)
+            }}
+            edge="start"
+          >
+            <Edit fontSize="small" />
+          </IconButton>
           <Typography id="input-slider" gutterBottom>
             Brightness
           </Typography>
@@ -161,4 +183,4 @@ const LightColors: React.FC<LightColorsProps> = props => {
   )
 }
 
-export default LightColors
+export default withRouter(LightColors)

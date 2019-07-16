@@ -14,6 +14,7 @@ import Home from './Home'
 import Header from './Header'
 import Login from './Login'
 import SignedIn from './SignedIn'
+import Edit from './Edit'
 
 const theme = createMuiTheme({
   palette: {
@@ -45,6 +46,7 @@ const App: React.FC = () => {
         <Router>
           <Header />
           <Route path="/" exact component={Home} />
+          <Route path="/edit/:lightId" exact component={Edit} />
           <Route path="/login" exact component={Login} />
           <Route path="/signed-in" exact component={SignedIn} />
         </Router>
