@@ -20,4 +20,5 @@ interface User extends firebase.User {
   brightness: boolean
   changeColor: boolean
   createColor: boolean
+  togglePower: boolean
 }

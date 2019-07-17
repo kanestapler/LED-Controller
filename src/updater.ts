@@ -1,4 +1,25 @@
-import { saveLight, updateLightLED } from './database'
+import {
+  saveLight,
+  updateLightLED,
+  updateLightPower,
+  updateLightPartyMode,
+} from './database'
+import { LightStatus } from './LightColors'
+
+export const updateLightStatus = (light: Light, status: LightStatus | null) => {
+  if (!status) {
+    updateLightPower(light, false)
+    updateLightPartyMode(light, false)
+  } else {
+    if (status === LightStatus.StaticColorArray) {
+      updateLightPower(light, true)
+      updateLightPartyMode(light, false)
+    } else if (status === LightStatus.PartyMode) {
+      updateLightPower(light, true)
+      updateLightPartyMode(light, true)
+    }
+  }
+}
 
 export const updateLight = (light: Light) => {
   //Update Light in database

@@ -23,6 +23,8 @@ import {
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab'
 
 import { AuthContext } from './AuthContext'
+import { updateLightStatus } from './updater'
+import { useLightStatus } from './database'
 
 import ColorBlock from './ColorBlock'
 
@@ -33,7 +35,13 @@ interface RouterProps {
 interface LightColorsProps extends RouteComponentProps<RouterProps> {
   light: Light
   trashId: string
-  updateScale: (scale: number) => void
+  updateBrightness: (scale: number) => void
+}
+
+export enum LightStatus {
+  StaticColorArray = 'static',
+  PartyMode = 'party',
+  Power = 'power',
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -70,12 +78,13 @@ const useStyles = makeStyles((theme: Theme) =>
 const MAX_BRIGHTNESS = 125
 
 const LightColors: React.FC<LightColorsProps & RouterProps> = props => {
-  const { light, trashId, updateScale, history } = props
+  const { light, trashId, updateBrightness, history } = props
   const [brightness, setBrightness] = useState(light.scale)
   const [expanded, setExpanded] = useState(false)
-  const [mode, setMode] = useState<string | null>(null)
+  const lightStatus = useLightStatus(light)
   const classes = useStyles()
   const user = useContext(AuthContext)
+
   return (
     <ExpansionPanel
       expanded={expanded}
@@ -97,28 +106,38 @@ const LightColors: React.FC<LightColorsProps & RouterProps> = props => {
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.details}>
         <ToggleButtonGroup
-          value={mode}
+          value={lightStatus}
           exclusive
-          onChange={(e, x: string) => {
-            if (x === 'power') {
-              if (mode) {
-                setMode(null)
+          onChange={(e, x: LightStatus) => {
+            if (x === LightStatus.Power) {
+              if (lightStatus) {
+                updateLightStatus(light, null)
               } else {
-                setMode('normal')
+                updateLightStatus(light, LightStatus.StaticColorArray)
               }
             } else {
-              setMode(x)
+              updateLightStatus(light, x)
             }
           }}
           className={classes.toggleBox}
         >
-          <ToggleButton selected={!!mode} value="power">
+          <ToggleButton
+            selected={!!lightStatus}
+            value={LightStatus.Power}
+            disabled={user ? !user.togglePower : true}
+          >
             <PowerSettingsNew />
           </ToggleButton>
-          <ToggleButton value="normal">
+          <ToggleButton
+            value={LightStatus.StaticColorArray}
+            disabled={user ? !user.togglePower : true}
+          >
             <BlurOn />
           </ToggleButton>
-          <ToggleButton value="center">
+          <ToggleButton
+            value={LightStatus.PartyMode}
+            disabled={user ? !user.togglePower : true}
+          >
             <Cake />
           </ToggleButton>
         </ToggleButtonGroup>
@@ -136,12 +155,12 @@ const LightColors: React.FC<LightColorsProps & RouterProps> = props => {
                 setBrightness(newValue as number)
               }}
               onChangeCommitted={(event, newValue) => {
-                updateScale(newValue as number)
+                updateBrightness(newValue as number)
               }}
               valueLabelDisplay="auto"
               min={0}
               max={MAX_BRIGHTNESS}
-              disabled={user ? !user.brightness : true}
+              disabled={user ? !user.brightness || !lightStatus : true}
             />
           </Grid>
           <Grid item>
@@ -157,7 +176,7 @@ const LightColors: React.FC<LightColorsProps & RouterProps> = props => {
                   value = MAX_BRIGHTNESS
                 }
                 setBrightness(value)
-                updateScale(value)
+                updateBrightness(value)
               }}
               disableUnderline
               inputProps={{
@@ -166,7 +185,7 @@ const LightColors: React.FC<LightColorsProps & RouterProps> = props => {
                 max: MAX_BRIGHTNESS,
                 type: 'number',
               }}
-              disabled={user ? !user.brightness : true}
+              disabled={user ? !user.brightness || !lightStatus : true}
             />
           </Grid>
         </Grid>

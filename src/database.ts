@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import firebase from './firebase'
+import { LightStatus } from './LightColors'
 
 const firestore = firebase.firestore()
 const database = firebase.database()
@@ -95,7 +96,15 @@ export const updateLightLED = (light: Light, LEDs: Color[]) => {
       2
     )},${led.blue.toFixed(2)}/`
   })
-  database.ref(`lights/${light.id}`).set(lightLEDObject)
+  database.ref(`lights/${light.id}/leds`).set(lightLEDObject)
+}
+
+export const updateLightPower = (light: Light, power: boolean) => {
+  database.ref(`lights/${light.id}/power`).set(power)
+}
+
+export const updateLightPartyMode = (light: Light, party: boolean) => {
+  database.ref(`lights/${light.id}/party`).set(party)
 }
 
 export const useUser = (uid: string | null) => {
@@ -134,5 +143,27 @@ export const createUser = (user: any) => {
       brightness: false,
       changeColor: false,
       createColor: false,
+      togglePower: false,
     })
+}
+
+export const useLightStatus = (light: Light) => {
+  const [lightStatus, setLightStatus] = useState<LightStatus | null>(null)
+  useEffect(() => {
+    const reference = database.ref(`lights/${light.id}`)
+    reference.on('value', snapshot => {
+      const lightData = snapshot.val()
+      if (!lightData.power) {
+        setLightStatus(null)
+      } else {
+        if (lightData.party) {
+          setLightStatus(LightStatus.PartyMode)
+        } else {
+          setLightStatus(LightStatus.StaticColorArray)
+        }
+      }
+    })
+    return reference.off
+  }, [light])
+  return lightStatus
 }
