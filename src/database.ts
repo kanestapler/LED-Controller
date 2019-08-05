@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react'
 import firebase from './firebase'
-import { LightStatus } from './LightColors'
 
 const firestore = firebase.firestore()
-const database = firebase.database()
 
 export const useDefaultColors = () => {
   const [defaultColors, setDefaultColors] = useState<Array<DefaultColor>>([])
@@ -78,7 +76,9 @@ export const saveLight = (light: Light) => {
       }),
       name: light.name,
       numberOfLEDs: light.numberOfLEDs,
-      scale: light.scale,
+      brightness: light.brightness,
+      mode: light.mode,
+      power: light.power,
     })
 }
 
@@ -87,24 +87,6 @@ export const deleteDefaultColor = (color: DefaultColor) => {
     .collection('defaults')
     .doc(color.id)
     .delete()
-}
-
-export const updateLightLED = (light: Light, LEDs: Color[]) => {
-  let lightLEDObject: string = ''
-  LEDs.forEach((led, index) => {
-    lightLEDObject += `${led.red.toFixed(2)},${led.green.toFixed(
-      2
-    )},${led.blue.toFixed(2)}/`
-  })
-  database.ref(`lights/${light.id}/leds`).set(lightLEDObject)
-}
-
-export const updateLightPower = (light: Light, power: boolean) => {
-  database.ref(`lights/${light.id}/power`).set(power)
-}
-
-export const updateLightPartyMode = (light: Light, party: boolean) => {
-  database.ref(`lights/${light.id}/party`).set(party)
 }
 
 export const useUser = (uid: string | null) => {
@@ -145,25 +127,4 @@ export const createUser = (user: any) => {
       createColor: false,
       togglePower: false,
     })
-}
-
-export const useLightStatus = (light: Light) => {
-  const [lightStatus, setLightStatus] = useState<LightStatus | null>(null)
-  useEffect(() => {
-    const reference = database.ref(`lights/${light.id}`)
-    reference.on('value', snapshot => {
-      const lightData = snapshot.val()
-      if (!lightData.power) {
-        setLightStatus(null)
-      } else {
-        if (lightData.party) {
-          setLightStatus(LightStatus.PartyMode)
-        } else {
-          setLightStatus(LightStatus.StaticColorArray)
-        }
-      }
-    })
-    return reference.off
-  }, [light])
-  return lightStatus
 }

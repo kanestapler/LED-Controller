@@ -33,7 +33,6 @@ const Edit: React.FC<EditProps> = ({ match }) => {
   }
   return (
     <div className={classes.root}>
-      {JSON.stringify(light)}
       <TextField
         label="ID"
         className={classes.textField}

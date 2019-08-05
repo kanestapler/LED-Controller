@@ -13,7 +13,9 @@ interface Light {
   name: string
   id: string
   numberOfLEDs: number
-  scale: number
+  brightness: number
+  power: boolean
+  mode: LightMode
 }
 
 interface User extends firebase.User {

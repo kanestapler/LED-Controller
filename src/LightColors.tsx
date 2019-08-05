@@ -19,12 +19,12 @@ import {
   BlurOn,
   Cake,
   PowerSettingsNew,
+  ColorLens,
 } from '@material-ui/icons'
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab'
 
 import { AuthContext } from './AuthContext'
-import { updateLightStatus } from './updater'
-import { useLightStatus } from './database'
+import { updateLight } from './updater'
 
 import ColorBlock from './ColorBlock'
 
@@ -35,13 +35,7 @@ interface RouterProps {
 interface LightColorsProps extends RouteComponentProps<RouterProps> {
   light: Light
   trashId: string
-  updateBrightness: (scale: number) => void
-}
-
-export enum LightStatus {
-  StaticColorArray = 'static',
-  PartyMode = 'party',
-  Power = 'power',
+  updateBrightness: (brightness: number) => void
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -79,9 +73,8 @@ const MAX_BRIGHTNESS = 125
 
 const LightColors: React.FC<LightColorsProps & RouterProps> = props => {
   const { light, trashId, updateBrightness, history } = props
-  const [brightness, setBrightness] = useState(light.scale)
+  const [brightness, setBrightness] = useState(light.brightness)
   const [expanded, setExpanded] = useState(false)
-  const lightStatus = useLightStatus(light)
   const classes = useStyles()
   const user = useContext(AuthContext)
 
@@ -105,42 +98,60 @@ const LightColors: React.FC<LightColorsProps & RouterProps> = props => {
         </IconButton>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.details}>
-        <ToggleButtonGroup
-          value={lightStatus}
-          exclusive
-          onChange={(e, x: LightStatus) => {
-            if (x === LightStatus.Power) {
-              if (lightStatus) {
-                updateLightStatus(light, null)
-              } else {
-                updateLightStatus(light, LightStatus.StaticColorArray)
-              }
-            } else {
-              updateLightStatus(light, x)
-            }
-          }}
-          className={classes.toggleBox}
-        >
+        <div className={classes.toggleBox}>
           <ToggleButton
-            selected={!!lightStatus}
-            value={LightStatus.Power}
+            value=""
+            selected={light.power}
             disabled={user ? !user.togglePower : true}
+            onClick={() => {
+              updateLight({
+                ...light,
+                power: !light.power,
+              })
+            }}
           >
             <PowerSettingsNew />
           </ToggleButton>
           <ToggleButton
-            value={LightStatus.StaticColorArray}
+            value=""
+            selected={light.mode === 'default'}
             disabled={user ? !user.togglePower : true}
+            onClick={() => {
+              updateLight({
+                ...light,
+                mode: 'default',
+              })
+            }}
           >
             <BlurOn />
           </ToggleButton>
           <ToggleButton
-            value={LightStatus.PartyMode}
+            value=""
+            selected={light.mode === 'party'}
             disabled={user ? !user.togglePower : true}
+            onClick={() => {
+              updateLight({
+                ...light,
+                mode: 'party',
+              })
+            }}
           >
             <Cake />
           </ToggleButton>
-        </ToggleButtonGroup>
+          <ToggleButton
+            value=""
+            selected={light.mode === 'rainbow'}
+            disabled={user ? !user.togglePower : true}
+            onClick={() => {
+              updateLight({
+                ...light,
+                mode: 'rainbow',
+              })
+            }}
+          >
+            <ColorLens />
+          </ToggleButton>
+        </div>
         <Typography id="input-slider" gutterBottom>
           Brightness
         </Typography>
@@ -160,7 +171,7 @@ const LightColors: React.FC<LightColorsProps & RouterProps> = props => {
               valueLabelDisplay="auto"
               min={0}
               max={MAX_BRIGHTNESS}
-              disabled={user ? !user.brightness || !lightStatus : true}
+              disabled={user ? !user.brightness || !light.power : true}
             />
           </Grid>
           <Grid item>
@@ -185,7 +196,7 @@ const LightColors: React.FC<LightColorsProps & RouterProps> = props => {
                 max: MAX_BRIGHTNESS,
                 type: 'number',
               }}
-              disabled={user ? !user.brightness || !lightStatus : true}
+              disabled={user ? !user.brightness || !light.power : true}
             />
           </Grid>
         </Grid>

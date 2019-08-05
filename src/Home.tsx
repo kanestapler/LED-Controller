@@ -113,8 +113,8 @@ const Home: React.FC = () => {
                 key={light.id}
                 light={light}
                 trashId={TRASH_ID}
-                updateBrightness={newScale => {
-                  light.scale = newScale
+                updateBrightness={newBrightness => {
+                  light.brightness = newBrightness
                   updateLight(light)
                 }}
               />
